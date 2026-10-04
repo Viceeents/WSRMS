@@ -1,0 +1,24 @@
+import { readFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+const source = readFileSync(new URL('../src/features/grid-map/utils/dijkstra.ts', import.meta.url), 'utf8');
+const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 } }).outputText;
+const { findShortestPath, findPathToStorage, findPathFromStorage, gridKey } = await import('data:text/javascript;base64,' + Buffer.from(compiled).toString('base64'));
+const start = {row: 0, column: 0}, goal = {row: 0, column: 2};
+assert.equal(findShortestPath(start, goal, new Set(), 3, 3).distance, 2);
+const blocked = new Set(['0:1']);
+const alternate = findShortestPath(start, goal, blocked, 3, 3);
+assert.equal(alternate.distance, 4);
+assert.ok(alternate.path.every(p => !blocked.has(gridKey(p))));
+assert.equal(findShortestPath(start, goal, new Set(['0:1', '1:0']), 3, 3), null);
+assert.equal(findShortestPath(start, goal, new Set(['0:2']), 3, 3), null);
+const weighted = findShortestPath(start, goal, new Set(), 3, 3, new Map([['0:1', 8]]));
+assert.equal(weighted.distance, 4);
+const full = {row: 1, column: 1};
+const fullBlocked = new Set(['1:1']);
+assert.ok(findPathToStorage(start, full, fullBlocked));
+assert.equal(findPathToStorage(start, full, new Set(['1:1','0:1','1:0','1:2','2:1'])), null);
+// A full storage destination cannot serve as a bridge across a blocked wall.
+const wall = new Set(Array.from({length: 10}, (_,row) => row + ':1'));
+assert.equal(findPathFromStorage(full, {row: 1,column: 3}, wall, new Map(), {row: 1,column: 0}), null);
+console.log('Routing checks passed: open, weighted, rerouted, isolated, full retrieval, and no passage through full storage.');

@@ -1,0 +1,139 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-09-29T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app",
+  "resources": [
+    {
+      "_id": "wrk_wsrms_api",
+      "_type": "workspace",
+      "name": "WSRMS API",
+      "description": "Requests for the Warehouse Storage Records Management System API"
+    },
+    {
+      "_id": "env_wsrms_base",
+      "_type": "environment",
+      "parentId": "wrk_wsrms_api",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3001",
+        "token": "",
+        "parcel_id": "REPLACE_WITH_PARCEL_UUID"
+      }
+    },
+    {
+      "_id": "req_wsrms_health",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "Health check",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/health",
+      "headers": [],
+      "body": {}
+    },
+    {
+      "_id": "req_wsrms_login",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "Sign in",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/auth/login",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"vince@wsrms.local\",\n  \"password\": \"ENTER_YOUR_PASSWORD\"\n}"
+      }
+    },
+    {
+      "_id": "req_wsrms_request_access",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "Request access",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/auth/request-access",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"fullName\": \"Warehouse Staff\",\n  \"email\": \"staff@example.com\",\n  \"password\": \"CHANGE_TO_A_STRONG_PASSWORD\"\n}"
+      }
+    },
+    {
+      "_id": "req_wsrms_inventory",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "List inventory",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/inventory",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }],
+      "body": {}
+    },
+    {
+      "_id": "req_wsrms_create_parcel",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "Create parcel",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/inventory",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"parcelCode\": \"PKG-TEST-0001\",\n  \"company\": \"Example Supplier\",\n  \"storageLocation\": \"Rack A-01\",\n  \"quantity\": 12,\n  \"reorderThreshold\": 3,\n  \"fragile\": false\n}"
+      }
+    },
+    {
+      "_id": "req_wsrms_transactions",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "List transactions",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/transactions",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }],
+      "body": {}
+    },
+    {
+      "_id": "req_wsrms_check_in",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "Check in parcel",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/transactions",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"parcelId\": \"{{ _.parcel_id }}\",\n  \"type\": \"check_in\",\n  \"quantity\": 5\n}"
+      }
+    },
+    {
+      "_id": "req_wsrms_dispatch",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "Dispatch parcel",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/transactions",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" },
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"parcelId\": \"{{ _.parcel_id }}\",\n  \"type\": \"dispatch\",\n  \"quantity\": 2,\n  \"recipient\": \"Example Client\"\n}"
+      }
+    },
+    {
+      "_id": "req_wsrms_admin_users",
+      "_type": "request",
+      "parentId": "wrk_wsrms_api",
+      "name": "List users (admin)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/admin/users",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ _.token }}" }],
+      "body": {}
+    }
+  ]
+}
